@@ -1,0 +1,218 @@
+/* 基础样式系统：全局排版、布局骨架与共用原子类。组件外观由 antd 主题提供。 */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--cg-surface);
+  color: var(--cg-text);
+  font-family: var(--cg-font-sans);
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+code {
+  font-family: var(--cg-font-mono);
+  font-size: 12px;
+}
+
+.cg-app {
+  display: flex;
+  height: 100%;
+}
+
+.cg-sidebar {
+  width: 200px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  padding: var(--cg-space-5) 0 var(--cg-space-4);
+  background: var(--cg-sidebar);
+  border-right: var(--cg-line);
+}
+
+.cg-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--cg-space-4) var(--cg-space-5);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.cg-brand__mark {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cg-brand__version {
+  display: block;
+  color: var(--cg-text-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* Menu 直接用 antd 的组件，这里只把它融进暖米白侧栏 */
+.cg-nav.ant-menu {
+  background: transparent;
+  border-inline-end: none;
+}
+
+.cg-nav .ant-menu-item-group-title {
+  padding-inline: 16px;
+  font-size: 11px;
+  color: var(--cg-text-faint);
+}
+
+.cg-nav .ant-menu-item {
+  margin-inline: 8px;
+  width: calc(100% - 16px);
+  height: 34px;
+  line-height: 34px;
+  color: var(--cg-text-muted);
+}
+
+.cg-nav .ant-menu-item-selected {
+  background: var(--cg-panel);
+  color: var(--cg-text);
+}
+
+.cg-nav .ant-menu-item:hover {
+  background: var(--cg-accent-soft);
+  color: var(--cg-text);
+}
+
+.cg-sidebar__footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--cg-space-3) var(--cg-space-4) 0;
+  border-top: var(--cg-line);
+}
+
+.cg-sidebar__state {
+  color: var(--cg-text-muted);
+  font-size: 12px;
+}
+
+.cg-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--cg-text-faint);
+}
+
+.cg-dot--success {
+  background: var(--cg-success);
+}
+
+.cg-dot--danger {
+  background: var(--cg-danger);
+}
+
+.cg-main {
+  flex: 1;
+  min-width: 0;
+  padding: 28px var(--cg-space-6) var(--cg-space-6);
+  overflow: auto;
+}
+
+.cg-page-title.ant-typography {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+}
+
+.cg-subtitle {
+  margin-bottom: var(--cg-space-5);
+  color: var(--cg-text-muted);
+}
+
+.cg-mono {
+  font-family: var(--cg-font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cg-path {
+  font-family: var(--cg-font-mono);
+  font-size: 12px;
+}
+
+.cg-muted {
+  color: var(--cg-text-muted);
+}
+
+.cg-empty {
+  margin-top: var(--cg-space-4);
+  padding: var(--cg-space-6);
+  text-align: center;
+  color: var(--cg-text-muted);
+  background: var(--cg-panel);
+  border: var(--cg-line);
+  border-radius: var(--cg-radius-md);
+}
+
+.cg-empty--inline {
+  margin-top: 0;
+  padding: var(--cg-space-4);
+}
+
+.cg-empty--error {
+  color: var(--cg-danger);
+}
+
+.cg-swatch {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  padding: var(--cg-space-2) var(--cg-space-3);
+  background: var(--cg-panel);
+  border: var(--cg-line);
+  border-radius: var(--cg-radius-sm);
+}
+
+.cg-swatch__chip {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 5px;
+  border: var(--cg-line);
+}
+
+.cg-swatch__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.cg-swatch__value {
+  color: var(--cg-text-muted);
+  font-size: 11px;
+}

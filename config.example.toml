@@ -1,0 +1,42 @@
+# claude-gateway 示例配置
+#
+# 程序不读本文件。真实配置固定在平台目录，首次启动时会自动生成
+# （已存在旧配置则自动迁移），之后在设置页改上游地址、日志级别即可，
+# 改动会同步写回配置文件，保留注释。
+#
+# 配置目录：
+#   macOS / Linux : ~/.config/claude-gateway/config.toml
+#   Windows       : %APPDATA%\claude-gateway\config.toml
+# CLAUDE_GATEWAY_CONFIG 环境变量可显式指定路径，优先级最高。
+#
+# 想手工准备，就把本文件复制到上面的位置再改。
+
+listen = "127.0.0.1:15722"
+upstream = "http://127.0.0.1:15721"
+
+# 单条请求体上限（字节）
+max_body_bytes = 67108864
+
+# 上游通常是本机服务，走系统代理会被错误路由，保持 false
+use_system_proxy = false
+
+[log]
+# trace / debug / info / warn / error；RUST_LOG 环境变量优先级更高
+level = "info"
+
+# 留空使用平台默认日志目录：
+#   macOS   ~/Library/Logs/claude-gateway/
+#   Linux   ~/.local/state/claude-gateway/logs/
+#   Windows %LOCALAPPDATA%\claude-gateway\logs\
+# 填相对路径时以配置文件所在目录为基准，支持 ~ 展开。
+dir = ""
+
+# 最多保留多少个日志文件。按本地日期轮转，按文件个数清理。
+retain_days = 7
+
+# 未列出的规则视为启用
+[rules.thinking_disable]
+enabled = true
+
+[rules.tool_reference]
+enabled = true

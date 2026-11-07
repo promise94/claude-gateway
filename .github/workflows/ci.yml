@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    name: Rust 门禁
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # gateway-app 依赖 Tauri，Linux 上编译需要 WebKitGTK 与托盘库
+      - name: 安装 Tauri 的 Linux 系统依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: crates/gateway-app/ui/pnpm-lock.yaml
+
+      # tauri-build 会读取 frontendDist，CI 里需要先有构建产物
+      - name: 生成前端产物
+        working-directory: crates/gateway-app/ui
+        run: HUSKY=0 pnpm install --frozen-lockfile && pnpm run build
+
+      - name: 格式
+        run: cargo fmt --all -- --check
+
+      - name: 静态检查
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: 测试
+        run: cargo test --workspace
+
+  ui:
+    name: 前端门禁
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: crates/gateway-app/ui/pnpm-lock.yaml
+
+      - name: 安装依赖
+        working-directory: crates/gateway-app/ui
+        run: HUSKY=0 pnpm install --frozen-lockfile
+
+      - name: Lint
+        working-directory: crates/gateway-app/ui
+        run: pnpm run lint
+
+      - name: 格式
+        working-directory: crates/gateway-app/ui
+        run: pnpm run format:check
+
+      - name: 测试
+        working-directory: crates/gateway-app/ui
+        run: pnpm run test
+
+      - name: 构建
+        working-directory: crates/gateway-app/ui
+        run: pnpm run build

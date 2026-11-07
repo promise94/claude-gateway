@@ -1,0 +1,17 @@
+[package]
+name = "gateway-cli"
+version = "0.1.0"
+edition = "2021"
+description = "claude-gateway 命令行入口，供终端或 launchd 常驻使用"
+
+[[bin]]
+name = "claude-gateway"
+path = "src/main.rs"
+
+[dependencies]
+gateway-core = { path = "../gateway-core" }
+axum = { workspace = true }
+tokio = { workspace = true }
+reqwest = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }

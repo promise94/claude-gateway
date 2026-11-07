@@ -1,0 +1,222 @@
+/* 页面级样式：antd 组件的间距，以及日志显示区等业务特定规则。 */
+.cg-alert {
+  margin-bottom: var(--cg-space-3);
+}
+
+/* 状态横幅用浅底 + 细色条，避免 antd 默认的实底大色块压过暖米白配色 */
+.cg-alert--status.ant-alert {
+  background: var(--cg-panel);
+  border: var(--cg-line);
+  border-left: 3px solid var(--cg-success);
+}
+
+.cg-alert--status.ant-alert-warning {
+  border-left-color: var(--cg-warning);
+}
+
+.cg-alert--status.ant-alert-error {
+  border-left-color: var(--cg-danger);
+}
+
+.cg-alert--status .ant-alert-message {
+  color: var(--cg-text);
+}
+
+.cg-alert--status .ant-alert-description {
+  color: var(--cg-text-muted);
+}
+
+.cg-section-card {
+  margin-bottom: var(--cg-space-4);
+}
+
+.cg-metric-grid {
+  margin: var(--cg-space-4) 0;
+}
+
+.cg-card__desc {
+  color: var(--cg-text-muted);
+  font-size: 12px;
+  margin-top: var(--cg-space-1);
+}
+
+.cg-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--cg-space-3);
+  margin: var(--cg-space-5) 0 var(--cg-space-2);
+}
+
+.cg-hint {
+  margin-top: var(--cg-space-2);
+  font-size: 12px;
+  color: var(--cg-text-muted);
+}
+
+.cg-descriptions {
+  margin-bottom: var(--cg-space-4);
+}
+
+.cg-toolbar.ant-space {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cg-space-2);
+  width: 100%;
+  margin-bottom: var(--cg-space-3);
+}
+
+.cg-toolbar__spacer {
+  flex: 1;
+}
+
+.cg-input--url {
+  width: 360px;
+}
+
+.cg-input--search {
+  width: 210px;
+}
+
+.cg-file-select {
+  width: 260px;
+}
+
+.cg-level-select {
+  width: 120px;
+}
+
+.cg-rule-summary__row {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  padding: var(--cg-space-2) var(--cg-space-3);
+  border-bottom: var(--cg-line);
+}
+
+.cg-rule-summary__row:last-child {
+  border-bottom: none;
+}
+
+.cg-rule-summary__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.cg-rule-summary__hits {
+  color: var(--cg-text-muted);
+  font-family: var(--cg-font-mono);
+  font-size: 12px;
+}
+
+.cg-rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-3);
+}
+
+.cg-rule-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--cg-space-3);
+  margin-bottom: var(--cg-space-4);
+}
+
+.cg-rule-card__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cg-rule-card__title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cg-rule-card__id {
+  font-size: 11px;
+}
+
+.cg-rule-card__desc {
+  margin: 0 0 var(--cg-space-4);
+  color: var(--cg-text-muted);
+}
+
+.cg-rule-card__params {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-3);
+}
+
+.cg-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-1);
+}
+
+.cg-field__label {
+  font-size: 12px;
+}
+
+.cg-field__hint {
+  margin-left: var(--cg-space-2);
+  font-size: 11px;
+}
+
+.cg-rule-card__noparam {
+  font-size: 12px;
+}
+
+.cg-rule-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--cg-space-4);
+  padding-top: var(--cg-space-3);
+  border-top: var(--cg-line);
+}
+
+.cg-rule-card__hits {
+  font-family: var(--cg-font-mono);
+  font-size: 12px;
+}
+
+.cg-log-meta {
+  margin: var(--cg-space-3) 0 var(--cg-space-2);
+  font-size: 11px;
+}
+
+.cg-logbox {
+  height: 460px;
+  overflow: auto;
+  padding: var(--cg-space-2) var(--cg-space-3);
+  background: var(--cg-panel);
+  border: var(--cg-line);
+  border-radius: var(--cg-radius-md);
+  font-family: var(--cg-font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.cg-log-line {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.cg-log-line--ERROR {
+  color: var(--cg-danger);
+}
+
+.cg-log-line--WARN {
+  color: var(--cg-warning);
+}
+
+.cg-log-line--INFO {
+  color: var(--cg-text);
+}
+
+.cg-log-line--DEBUG {
+  color: var(--cg-text-muted);
+}

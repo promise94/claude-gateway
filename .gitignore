@@ -1,0 +1,61 @@
+# ── 构建产物与依赖 ────────────────────────────────────────────
+# 不带前导斜杠，任意层级都生效：在子 crate 里单独 build 也不会漏
+target/
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+*.profraw
+*.lcov
+# 本项目用 pnpm，只提交 pnpm-lock.yaml
+package-lock.json
+yarn.lock
+npm-shrinkwrap.json
+.pnpm-store/
+crates/gateway-app/gen/
+# tauri icon 会顺带生成移动端图标，本项目只打 macOS app
+crates/gateway-app/icons/android/
+crates/gateway-app/icons/ios/
+
+# ── 日志 ──────────────────────────────────────────────────────
+logs/
+*.log
+*.log.*
+
+# ── 本地配置与运行时写出的文件 ────────────────────────────────
+# 配置固定在平台目录；这里防的是 CLAUDE_GATEWAY_CONFIG 指向仓库内
+/config.toml
+# rules_store 写 config.toml.bak，config_store 写 config.toml.tmp
+*.bak
+*.tmp
+
+# ── 打包产物与手工部署的二进制 ────────────────────────────────
+/claude-gateway
+/claude-gateway.new
+*.dmg
+*.app/
+*.msi
+*.deb
+*.AppImage
+
+# ── 编辑器与系统 ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.orig
+*.rej
+# sed -i 与部分编辑器留下的 .!12345!file 临时文件
+.!*!*
+
+# ── 本机凭证与环境变量 ────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*

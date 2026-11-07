@@ -1,0 +1,24 @@
+[package]
+name = "gateway-app"
+version = "0.1.0"
+edition = "2021"
+description = "claude-gateway 桌面控制台（Tauri 2）"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+gateway-core = { path = "../gateway-core" }
+tauri = { version = "2", features = ["tray-icon"] }
+axum = { workspace = true }
+tokio = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+
+# 嵌入前端资源、走自定义协议而非 devUrl 的开关。
+# 不启用时 tauri 的 build script 会判定 dev=true，二进制只连 devUrl，窗口白屏。
+[features]
+custom-protocol = ["tauri/custom-protocol"]

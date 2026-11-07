@@ -1,0 +1,37 @@
+/* 设计基线：C 暖米白 + 赤陶。色值来源 docs/decisions.md D16。 */
+:root {
+  color-scheme: light;
+
+  --cg-surface: #f7f4ee;
+  --cg-topbar: #fbf9f4;
+  --cg-sidebar: #f1ece2;
+  --cg-panel: #fffdf8;
+  --cg-text: #2b2722;
+  --cg-text-muted: #8a8175;
+  --cg-text-faint: #b4aa9a;
+  --cg-border: #e5ded2;
+  --cg-accent: #b9533a;
+  --cg-accent-soft: #f7eae4;
+  --cg-success: #6b7f5b;
+  --cg-danger: #a33b2a;
+  --cg-warning: #b8863b;
+  --cg-on-accent: #fff9f3;
+
+  /* 间距阶 */
+  --cg-space-1: 4px;
+  --cg-space-2: 8px;
+  --cg-space-3: 12px;
+  --cg-space-4: 16px;
+  --cg-space-5: 22px;
+  --cg-space-6: 32px;
+
+  /* 圆角与层级 */
+  --cg-radius-sm: 5px;
+  --cg-radius-md: 9px;
+  --cg-radius-lg: 12px;
+  --cg-line: 0.5px solid var(--cg-border);
+
+  --cg-font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+  --cg-font-mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+}

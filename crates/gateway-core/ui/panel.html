@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>claude-gateway 控制台</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #111111;
+    --fg-muted: #6b6b6b;
+    --fg-subtle: #949494;
+    --line: #e4e4e4;
+    --line-soft: #f1f1f1;
+    --surface: #fafafa;
+    --inverse: #111111;
+    --on-inverse: #ffffff;
+    --ok: #1a7f37;
+    --warn: #8a5a00;
+    --bad: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d0d0d;
+      --fg: #f0f0f0;
+      --fg-muted: #a3a3a3;
+      --fg-subtle: #7d7d7d;
+      --line: #2a2a2a;
+      --line-soft: #1b1b1b;
+      --surface: #151515;
+      --inverse: #f0f0f0;
+      --on-inverse: #0d0d0d;
+      --ok: #4ac26b;
+      --warn: #d4a72c;
+      --bad: #ff7b72;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    padding: 28px 24px 72px;
+    background: var(--bg);
+    color: var(--fg);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .muted { color: var(--fg-muted); }
+  .subtle { color: var(--fg-subtle); }
+  .ok { color: var(--ok); }
+  .warn { color: var(--warn); }
+  .bad { color: var(--bad); }
+
+  header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+  .pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--fg-muted);
+    background: var(--surface);
+  }
+  .dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: var(--ok);
+    vertical-align: 1px;
+  }
+  .dot.down { background: var(--bad); }
+
+  .chain { margin-top: 10px; font-size: 13px; color: var(--fg-muted); overflow-wrap: anywhere; }
+  .chain code { color: var(--fg); }
+  .chain span + span::before { content: "·"; margin: 0 8px; color: var(--fg-subtle); }
+
+  #banner {
+    display: none;
+    margin-top: 14px;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--bad);
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--bad);
+    background: var(--surface);
+  }
+
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 26px 0 4px; }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .card .k { font-size: 12px; color: var(--fg-muted); }
+  .card .v { margin-top: 3px; font-size: 25px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .card .v small { margin-left: 3px; font-size: 12px; font-weight: 400; color: var(--fg-subtle); }
+  .card.alert .v { color: var(--bad); }
+  .card.flash .v { color: var(--warn); }
+
+  section { margin-top: 30px; }
+  .head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  h2 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.01em; }
+  .head .subtle { font-size: 12px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th {
+    padding: 6px 8px 6px 0;
+    text-align: left;
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--fg-subtle);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  th:last-child, td:last-child { padding-right: 0; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.path { max-width: 340px; overflow-wrap: anywhere; }
+  .empty { padding: 10px 0; color: var(--fg-subtle); font-size: 12.5px; }
+
+  .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .seg { display: inline-flex; }
+  .seg button {
+    font: inherit;
+    font-size: 12px;
+    padding: 3px 9px;
+    color: var(--fg-muted);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-right-width: 0;
+    cursor: pointer;
+  }
+  .seg button:first-child { border-radius: 6px 0 0 6px; }
+  .seg button:last-child { border-right-width: 1px; border-radius: 0 6px 6px 0; }
+  .seg button[aria-pressed="true"] { background: var(--inverse); border-color: var(--inverse); color: var(--on-inverse); }
+  button.plain {
+    font: inherit;
+    font-size: 12px;
+    padding: 3px 10px;
+    color: var(--fg-muted);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  button.plain:hover, .seg button:hover { border-color: var(--fg-subtle); }
+  select, input[type="search"] {
+    font: inherit;
+    font-size: 12px;
+    padding: 3px 8px;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  input[type="search"] { width: 180px; }
+  label.check { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--fg-muted); }
+
+  #logbox {
+    height: 400px;
+    overflow: auto;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  #logbox div { white-space: pre-wrap; overflow-wrap: anywhere; }
+  #logbox .L-ERROR { color: var(--bad); }
+  #logbox .L-WARN { color: var(--warn); }
+  #logbox .L-DEBUG { color: var(--fg-subtle); }
+  #probe { font-size: 12px; }
+
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--fg-subtle); }
+
+  @media (max-width: 760px) {
+    body { padding: 20px 16px 56px; }
+    .cards { grid-template-columns: repeat(2, 1fr); }
+    td.path { max-width: 180px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>claude-gateway</h1>
+    <span class="pill mono" id="version">v—</span>
+    <span class="pill"><span class="dot" id="dot"></span><span id="health">连接中</span></span>
+    <span class="pill mono" id="uptime">运行 —</span>
+    <span class="pill mono" id="pid">pid —</span>
+  </header>
+
+  <div class="chain">
+    <span>监听 <code class="mono" id="listen">—</code></span>
+    <span>上游 <code class="mono" id="upstream">—</code></span>
+    <span>配置 <code class="mono" id="config-source">—</code></span>
+    <span>日志 <code class="mono" id="log-dir">—</code></span>
+  </div>
+
+  <div id="banner" role="status"></div>
+
+  <div class="cards">
+    <div class="card"><div class="k">请求总数</div><div class="v" id="c-req">—</div></div>
+    <div class="card" id="card-err"><div class="k">错误响应（≥400）</div><div class="v" id="c-err">—</div></div>
+    <div class="card" id="card-bad"><div class="k">流异常</div><div class="v" id="c-bad">—<small id="c-bad-detail"></small></div></div>
+    <div class="card"><div class="k">平均上游首字节</div><div class="v" id="c-ttfb">—</div></div>
+  </div>
+
+  <section>
+    <div class="head">
+      <h2>改写规则</h2>
+      <span class="subtle">开关在 config.toml，改动需重启进程</span>
+    </div>
+    <table>
+      <thead><tr><th scope="col">规则</th><th scope="col">状态</th><th scope="col" class="num">累计命中</th></tr></thead>
+      <tbody id="rules"></tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="head">
+      <h2>最近请求</h2>
+      <span class="subtle" id="req-meta">—</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th scope="col">时间</th><th scope="col">方法</th><th scope="col">路径</th>
+        <th scope="col">状态</th><th scope="col" class="num">总耗时</th>
+        <th scope="col" class="num">上游</th><th scope="col">改写</th>
+      </tr></thead>
+      <tbody id="requests"></tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="head">
+      <h2>流事件</h2>
+      <span class="subtle">只记 SSE。中断与提前结束是上游侧问题的主要证据</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th scope="col">时间</th><th scope="col">路径</th><th scope="col">结果</th>
+        <th scope="col" class="num">字节</th><th scope="col" class="num">块数</th>
+        <th scope="col" class="num">耗时</th><th scope="col">说明</th>
+      </tr></thead>
+      <tbody id="streams"></tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="head">
+      <h2>日志</h2>
+      <span class="subtle" id="log-meta">—</span>
+    </div>
+    <div class="toolbar">
+      <div class="seg" id="levels">
+        <button data-level="all" aria-pressed="true">全部</button>
+        <button data-level="info" aria-pressed="false">INFO</button>
+        <button data-level="warn" aria-pressed="false">WARN</button>
+        <button data-level="error" aria-pressed="false">ERROR</button>
+        <button data-level="debug" aria-pressed="false">DEBUG</button>
+      </div>
+      <select id="source" aria-label="日志来源">
+        <option value="memory">内存缓冲（本次运行）</option>
+      </select>
+      <input type="search" id="filter" placeholder="过滤关键字" aria-label="过滤日志">
+      <label class="check"><input type="checkbox" id="follow" checked> 自动滚动</label>
+      <label class="check"><input type="checkbox" id="pause"> 暂停刷新</label>
+      <button class="plain" id="refresh">立即刷新</button>
+    </div>
+    <div id="logbox" class="mono"></div>
+  </section>
+
+  <section>
+    <div class="head">
+      <h2>生效配置</h2>
+      <span class="subtle">只读。修改请编辑配置文件后重启</span>
+    </div>
+    <table>
+      <thead><tr><th scope="col">键</th><th scope="col">值</th></tr></thead>
+      <tbody id="config"></tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="head">
+      <h2>上游探测</h2>
+      <span class="subtle">只发 HEAD，不进入推理，不消耗额度</span>
+    </div>
+    <div class="toolbar">
+      <button class="plain" id="probe">探测一次</button>
+      <span id="probe-result" class="mono muted">未探测</span>
+    </div>
+  </section>
+
+  <footer>
+    只读控制台。请求体与响应体不会写入日志或内存，这里看不到对话内容，这是刻意的。
+  </footer>
+</div>
+
+<script>
+const state = { level: "all", source: "memory", follow: true, pause: false, keyword: "" };
+const MAX_RENDER_LINES = 600;
+
+const el = id => document.getElementById(id);
+const text = (tag, value, cls) => {
+  const node = document.createElement(tag);
+  node.textContent = value == null || value === "" ? "—" : String(value);
+  if (cls) node.className = cls;
+  return node;
+};
+const row = cells => {
+  const tr = document.createElement("tr");
+  cells.forEach((cell, index) => {
+    if (index === 0) return tr.appendChild(cell);
+    tr.appendChild(cell);
+  });
+  return tr;
+};
+const emptyRow = (tbody, cols, message) => {
+  const tr = document.createElement("tr");
+  const td = text("td", message, "empty");
+  td.colSpan = cols;
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+};
+const numCell = value => text("td", value, "num");
+
+function fmtDur(secs) {
+  if (secs == null) return "—";
+  const d = Math.floor(secs / 86400);
+  const h = Math.floor((secs % 86400) / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = Math.floor(secs % 60);
+  if (d) return d + "d " + h + "h";
+  if (h) return h + "h " + m + "m";
+  if (m) return m + "m " + s + "s";
+  return s + "s";
+}
+function fmtMs(ms) {
+  // 0ms 是真实值（本机环回常见），不能显示成 "—"
+  if (ms == null) return "—";
+  return ms >= 1000 ? (ms / 1000).toFixed(1) + "s" : ms + "ms";
+}
+function fmtBytes(bytes) {
+  if (bytes < 1024) return bytes + "B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + "KB";
+  return (bytes / 1024 / 1024).toFixed(1) + "MB";
+}
+async function getJSON(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.json();
+}
+function showBanner(message) {
+  const banner = el("banner");
+  banner.style.display = message ? "block" : "none";
+  banner.textContent = message || "";
+}
+
+async function refreshStatus() {
+  const data = await getJSON("/_panel/api/status");
+
+  el("dot").classList.remove("down");
+  el("health").textContent = "运行中";
+  el("version").textContent = "v" + data.version;
+  el("uptime").textContent = "运行 " + fmtDur(data.uptime_secs);
+  el("pid").textContent = "pid " + data.pid;
+  el("listen").textContent = data.listen;
+  el("upstream").textContent = data.upstream;
+  el("config-source").textContent = data.config_source || "内置默认配置";
+  el("log-dir").textContent = data.log_dir || "未落盘";
+
+  const c = data.counters;
+  el("c-req").textContent = c.requests;
+  el("c-err").textContent = c.errors;
+  const bad = c.stream_truncated + c.stream_errors;
+  el("c-bad").firstChild.nodeValue = bad;
+  el("c-bad-detail").textContent = c.streams ? " / " + c.streams : "";
+  el("card-err").classList.toggle("alert", c.errors > 0);
+  el("card-bad").classList.toggle("flash", bad > 0);
+
+  const ttfb = data.requests.filter(r => r.upstream_ms > 0).map(r => r.upstream_ms);
+  el("c-ttfb").textContent = ttfb.length
+    ? fmtMs(Math.round(ttfb.reduce((a, b) => a + b, 0) / ttfb.length))
+    : "—";
+
+  const rules = el("rules");
+  rules.textContent = "";
+  if (!data.rules.length) emptyRow(rules, 3, "没有已注册的规则");
+  data.rules.forEach(r => {
+    rules.appendChild(row([
+      text("td", r.label),
+      text("td", r.enabled ? "启用" : "停用", r.enabled ? "ok" : "subtle"),
+      numCell(r.hits)
+    ]));
+  });
+
+  const requests = el("requests");
+  requests.textContent = "";
+  el("req-meta").textContent = data.requests.length ? "最近 " + data.requests.length + " 条" : "";
+  if (!data.requests.length) emptyRow(requests, 7, "暂无请求");
+  data.requests.forEach(r => {
+    const cls = r.status >= 500 ? "bad" : r.status >= 400 ? "warn" : "ok";
+    requests.appendChild(row([
+      text("td", r.at, "mono"),
+      text("td", r.method, "mono"),
+      text("td", r.path, "path mono"),
+      text("td", r.status, cls + " num"),
+      numCell(fmtMs(r.elapsed_ms)),
+      numCell(fmtMs(r.upstream_ms)),
+      text("td", r.rewritten, "mono")
+    ]));
+  });
+
+  const streams = el("streams");
+  streams.textContent = "";
+  if (!data.streams.length) emptyRow(streams, 7, "暂无流事件");
+  const label = { complete: "完成", truncated: "提前结束", error: "中断", client_closed: "客户端断开" };
+  const tone = { complete: "ok", truncated: "warn", error: "bad", client_closed: "subtle" };
+  data.streams.forEach(s => {
+    streams.appendChild(row([
+      text("td", s.at, "mono"),
+      text("td", s.path, "path mono"),
+      text("td", label[s.outcome] || s.outcome, tone[s.outcome]),
+      numCell(s.bytes),
+      numCell(s.chunks),
+      numCell(fmtMs(s.elapsed_ms)),
+      text("td", s.detail || "")
+    ]));
+  });
+}
+
+function levelOf(line) {
+  if (line.includes(" ERROR ")) return "ERROR";
+  if (line.includes(" WARN ")) return "WARN";
+  if (line.includes(" DEBUG ")) return "DEBUG";
+  return "INFO";
+}
+
+function render(lines, meta) {
+  const box = el("logbox");
+  const follow = el("follow").checked;
+  const keyword = state.keyword.trim().toLowerCase();
+  const visible = keyword
+    ? lines.filter(line => line.toLowerCase().includes(keyword))
+    : lines;
+  const capped = visible.slice(Math.max(0, visible.length - MAX_RENDER_LINES));
+
+  box.textContent = "";
+  if (!capped.length) {
+    box.appendChild(text("div", keyword ? "没有匹配「" + keyword + "」的行" : "暂无日志", "empty"));
+  }
+  capped.forEach(line => {
+    const div = document.createElement("div");
+    div.className = "L-" + levelOf(line);
+    div.textContent = line;
+    box.appendChild(div);
+  });
+  el("log-meta").textContent = meta;
+  if (follow) box.scrollTop = box.scrollHeight;
+}
+
+async function refreshLogs() {
+  if (state.source === "memory") {
+    const data = await getJSON("/_panel/api/logs?limit=500&level=" + encodeURIComponent(state.level));
+    const meta = data.lines.length + " 行 · 缓冲 " + data.buffered + " 行";
+    render(data.lines, meta);
+    return;
+  }
+  const name = state.source.slice(5);
+  const data = await getJSON("/_panel/api/logfile?limit=600&name=" + encodeURIComponent(name));
+  render(data.lines, data.name + " · 共 " + data.total + " 行");
+}
+
+async function refreshFiles() {
+  const data = await getJSON("/_panel/api/files");
+  const select = el("source");
+  const current = state.source;
+  select.textContent = "";
+  const memory = document.createElement("option");
+  memory.value = "memory";
+  memory.textContent = "内存缓冲（本次运行）";
+  select.appendChild(memory);
+  data.files.forEach(file => {
+    const option = document.createElement("option");
+    option.value = "file:" + file.name;
+    option.textContent = file.name + " · " + fmtBytes(file.bytes);
+    select.appendChild(option);
+  });
+  if (current !== "memory" && !data.files.some(f => "file:" + f.name === current)) {
+    state.source = "memory";
+  }
+  select.value = state.source;
+}
+
+async function refreshConfig() {
+  const data = await getJSON("/_panel/api/config");
+  const body = el("config");
+  body.textContent = "";
+  const entries = [
+    ["配置文件", data.source || "内置默认配置"],
+    ["解析基准目录", data.base_dir],
+    ["监听地址", data.listen],
+    ["上游地址", data.upstream],
+    ["请求体上限", fmtBytes(data.max_body_bytes)],
+    ["使用系统代理", data.use_system_proxy ? "是" : "否"],
+    ["日志级别", data.log.level],
+    ["日志目录", data.log.dir || "未落盘"],
+    ["日志保留", data.log.retain_days + " 天"]
+  ];
+  entries.forEach(([key, value]) => {
+    body.appendChild(row([text("td", key, "muted"), text("td", value, "mono")]));
+  });
+  if (data.unregistered_rules.length) {
+    body.appendChild(row([
+      text("td", "未注册的规则 id", "warn"),
+      text("td", data.unregistered_rules.join(", ") + "（检查 config.toml 拼写）", "mono warn")
+    ]));
+  }
+}
+
+async function probe() {
+  const target = el("probe-result");
+  target.textContent = "探测中…";
+  target.className = "mono muted";
+  try {
+    const data = await getJSON("/_panel/api/upstream");
+    if (data.reachable) {
+      target.textContent = "可达 · HTTP " + data.status + " · " + fmtMs(data.latency_ms);
+      target.className = "mono ok";
+    } else {
+      target.textContent = "不可达 · " + (data.error || "未知原因");
+      target.className = "mono bad";
+    }
+  } catch (error) {
+    target.textContent = "探测失败：" + error.message;
+    target.className = "mono bad";
+  }
+}
+
+async function tick() {
+  if (state.pause) return;
+  try {
+    await Promise.all([refreshStatus(), refreshLogs()]);
+    showBanner("");
+  } catch (error) {
+    el("dot").classList.add("down");
+    el("health").textContent = "无响应";
+    showBanner("无法连接网关：" + error.message + "（进程可能已退出或端口被占用）");
+  }
+}
+
+el("levels").addEventListener("click", event => {
+  const button = event.target.closest("button[data-level]");
+  if (!button) return;
+  state.level = button.dataset.level;
+  el("levels").querySelectorAll("button").forEach(b => {
+    b.setAttribute("aria-pressed", String(b === button));
+  });
+  refreshLogs().catch(() => {});
+});
+el("source").addEventListener("change", event => {
+  state.source = event.target.value;
+  refreshLogs().catch(() => {});
+});
+el("filter").addEventListener("input", event => {
+  state.keyword = event.target.value;
+  refreshLogs().catch(() => {});
+});
+el("pause").addEventListener("change", event => {
+  state.pause = event.target.checked;
+  if (!state.pause) tick();
+});
+el("refresh").addEventListener("click", () => {
+  Promise.all([refreshStatus(), refreshLogs(), refreshFiles()]).catch(() => {});
+});
+el("probe").addEventListener("click", probe);
+
+refreshFiles().then(refreshConfig).catch(() => {});
+tick();
+setInterval(tick, 2000);
+</script>
+</body>
+</html>
